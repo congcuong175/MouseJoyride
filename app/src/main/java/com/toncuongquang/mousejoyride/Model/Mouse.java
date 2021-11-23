@@ -22,7 +22,7 @@ public class Mouse {
     public Bitmap fly1, fly2;
     private GameView gameView;
     private int screenY;
-
+    int toShoot = 0;
     public Mouse(GameView gameView, int screenY, Resources res) {
         this.gameView = gameView;
         this.screenY = screenY;

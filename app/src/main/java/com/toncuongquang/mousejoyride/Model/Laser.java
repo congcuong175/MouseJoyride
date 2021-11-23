@@ -10,18 +10,23 @@ import android.graphics.Rect;
 
 import com.toncuongquang.mousejoyride.R;
 
+import java.util.Random;
+
 public class Laser {
     public Bitmap laser1, laser2;
     public int speed = 10;
-    public boolean get = true;
     public int x, y, width, height;
     public boolean isActive = true;
-
+    public int count = 0;
+    public Random random;
+    public int rad;
     public Laser(Resources res) {
+        random = new Random();
+        rad = random.nextInt(40);
         laser1 = BitmapFactory.decodeResource(res, R.drawable.laser_on);
         laser2 = BitmapFactory.decodeResource(res, R.drawable.laser_off);
         width = 50;
-        height = 200;
+        height = 300;
         width = (int) (width * screenRatioX);
         height = (int) (height * screenRatioY);
         laser1 = Bitmap.createScaledBitmap(laser1, width, height, false);
@@ -30,12 +35,20 @@ public class Laser {
     }
 
     public Bitmap getLaser() {
-        if (isActive) {
+        if (count == 0) {
             isActive = false;
-            return laser1;
-        } else {
-            isActive = true;
+            count++;
             return laser2;
+        }
+        if(count>=1 &&count<=rad){
+            count++;
+            return laser2;
+        }
+        else
+        {
+            count=0;
+            isActive = true;
+            return laser1;
 
         }
     }
