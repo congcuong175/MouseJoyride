@@ -1,6 +1,8 @@
 package com.toncuongquang.mousejoyride.View;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -10,13 +12,17 @@ import android.view.MotionEvent;
 import android.view.SurfaceView;
 
 import com.toncuongquang.mousejoyride.GameActivity;
+import com.toncuongquang.mousejoyride.MainActivity;
 import com.toncuongquang.mousejoyride.Model.Background;
 import com.toncuongquang.mousejoyride.Model.Bullet;
+import com.toncuongquang.mousejoyride.Model.BulletDown;
 import com.toncuongquang.mousejoyride.Model.Coin;
 import com.toncuongquang.mousejoyride.Model.Laser;
+import com.toncuongquang.mousejoyride.Model.LaserLanscape;
 import com.toncuongquang.mousejoyride.Model.MagicBox;
 import com.toncuongquang.mousejoyride.Model.Mouse;
 import com.toncuongquang.mousejoyride.Model.Rocket;
+import com.toncuongquang.mousejoyride.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +40,10 @@ public class GameView extends SurfaceView implements Runnable {
     private Mouse mouse;
     private List<Coin> coinList;
     private List<Laser> laserList;
+    private List<LaserLanscape> laserLanscapeList;
     private List<Rocket> rocketList;
     private List<Bullet> bulletList;
+    private List<BulletDown> bulletListtwo;
     private List<MagicBox> magicBoxList;
     Random random;
     Random randomLaser;
@@ -51,8 +59,10 @@ public class GameView extends SurfaceView implements Runnable {
         this.screenY = screenY;
         coinList = new ArrayList<>();
         laserList = new ArrayList<>();
+        laserLanscapeList = new ArrayList<>();
         rocketList = new ArrayList<>();
         bulletList = new ArrayList<>();
+        bulletListtwo = new ArrayList<>();
         magicBoxList = new ArrayList<>();
         screenRatioX = 1920f / screenX;
         screenRatioY = 1080f / screenY;
@@ -69,9 +79,13 @@ public class GameView extends SurfaceView implements Runnable {
             coinList.add(coin);
         }
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 3; i++) {
             Laser laser = new Laser(getResources());
             laserList.add(laser);
+        }
+        for (int i = 0; i < 3; i++) {
+            LaserLanscape laser = new LaserLanscape(getResources());
+            laserLanscapeList.add(laser);
         }
         for (int i = 0; i < 3; i++) {
             Rocket rocket = new Rocket(getResources());
@@ -96,23 +110,51 @@ public class GameView extends SurfaceView implements Runnable {
         }
     }
 
+    List<Bullet> trashBullet = new ArrayList<>();
+    List<BulletDown> trashBulletTwo = new ArrayList<>();
+
     private void update() {
 
+
         newBullet();
+        newBulletTwo();
         background.x -= 10 * screenRatioX;
+
 
         if (mouse.isFly) {
             mouse.y -= 10 * screenRatioY;
+            for (BulletDown bullet : bulletListtwo) {
+                bullet.x = mouse.x - 75;
+                bullet.y = mouse.y + (mouse.heght / 2) + 25;
+            }
+
         } else {
+            bulletListtwo.clear();
             mouse.y += 15 * screenRatioY;
         }
         if (mouse.y > screenY * 3 / 4 - 50) {
             mouse.y = screenY * 3 / 4 - 50;
         }
+        for (LaserLanscape laser : laserLanscapeList) {
+            laser.x -= laser.speed;
+            //va chạm vs chuột
+
+            if (laser.isActive) {
+                if (Rect.intersects(laser.getCollider(), mouse.getColider())) {
+                    isGameOver = true;
+                }
+            }
+            if (laser.x + laser.width < 0) {
+
+                if (laser.speed < 10 * screenRatioX) {
+                    laser.speed = (int) (10 * screenRatioX);
+                }
+                laser.x = sceenX + randomLaser.nextInt(5000);
+                laser.y = randomLaser.nextInt(screenY * 3 / 4 - 50);
+            }
+        }
 
 
-
-        List<Bullet> trashBullet = new ArrayList<>();
         for (Rocket rocket : rocketList) {
             rocket.x -= rocket.speed;
 
@@ -173,8 +215,8 @@ public class GameView extends SurfaceView implements Runnable {
             //va chạm vs chuột
             if (Rect.intersects(magicBox.getCollider(), mouse.getColider())) {
                 sum += 10;
-                magicBox.x-=1000;
-                Log.d("bullet",sum+"");
+                magicBox.x -= 1000;
+                Log.d("bullet", sum + "");
 
             }
 
@@ -210,11 +252,16 @@ public class GameView extends SurfaceView implements Runnable {
     private void draw() {
         if (getHolder().getSurface().isValid()) {
             Canvas canvas = getHolder().lockCanvas();
-            canvas.drawBitmap(background.background, background.x, background.y, paint);
-            canvas.drawBitmap(background.background, background.x + background.background.getWidth(), background.y, paint);
+
+            canvas.drawBitmap(background.background, background.x + background.background.getWidth() * 0, background.y, paint);
+            canvas.drawBitmap(background.background, background.x + background.background.getWidth() * 1, background.y, paint);
             canvas.drawBitmap(background.background, background.x + background.background.getWidth() * 2, background.y, paint);
             canvas.drawBitmap(background.background, background.x + background.background.getWidth() * 3, background.y, paint);
             canvas.drawBitmap(background.background, background.x + background.background.getWidth() * 4, background.y, paint);
+            canvas.drawBitmap(background.background, background.x + background.background.getWidth()*5, background.y, paint);
+            canvas.drawBitmap(background.background, background.x + background.background.getWidth()*6, background.y, paint);
+            canvas.drawBitmap(background.background, background.x + background.background.getWidth()*7, background.y, paint);
+            canvas.drawBitmap(background.background, background.x + background.background.getWidth()*8, background.y, paint);
 
 
             canvas.drawBitmap(mouse.getRun(), mouse.x, mouse.y, paint);
@@ -225,34 +272,45 @@ public class GameView extends SurfaceView implements Runnable {
             for (Laser laser : laserList) {
                 canvas.drawBitmap(laser.getLaser(), laser.x, laser.y, paint);
             }
+            for (LaserLanscape laser : laserLanscapeList) {
+                canvas.drawBitmap(laser.getLaser(), laser.x, laser.y, paint);
+            }
             for (Rocket rocket : rocketList) {
                 canvas.drawBitmap(rocket.getRocket(), rocket.x, rocket.y, paint);
             }
             for (Bullet bullet : bulletList) {
                 canvas.drawBitmap(bullet.getbullet(), bullet.x, bullet.y, paint);
             }
-            for(MagicBox box:magicBoxList){
-                canvas.drawBitmap(box.getbox(),box.x,box.y,paint);
+            for (BulletDown bullet : bulletListtwo) {
+                canvas.drawBitmap(bullet.getbullet(), bullet.x, bullet.y, paint);
+            }
+            for (MagicBox box : magicBoxList) {
+                canvas.drawBitmap(box.getbox(), box.x, box.y, paint);
             }
 
 
-            if (isGameOver) {
+            if (isGameOver) {//1
                 isPlaying = false;
                 canvas.drawBitmap(mouse.getDie(), mouse.x, mouse.y, paint);
                 getHolder().unlockCanvasAndPost(canvas);
                 waitPlay();
+            } else {
+                canvas.drawText(point + "", sceenX / 2f, 164, paint);
+                getHolder().unlockCanvasAndPost(canvas);
             }
-            canvas.drawText(point + "", sceenX / 2f, 164, paint);
-            getHolder().unlockCanvasAndPost(canvas);
+
         }
     }
 
     public void waitPlay() {
         try {
-            Thread.sleep(4000);
-
+            thread.sleep(4000);
+            point = 0;
             //gameover
+            //gameActivity.finish();
             gameActivity.startActivity(new Intent(gameActivity, GameActivity.class));
+
+
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -277,10 +335,11 @@ public class GameView extends SurfaceView implements Runnable {
 
 
     int count = 0;
+    int count2 = 0;
     int sum = 10;
 
     public void newBullet() {
-        if(sum>0){
+        if (sum > 0) {
             if (count == 10) {
                 Bullet bullet = new Bullet(getResources());
                 bullet.x = mouse.x + mouse.width - 20;
@@ -290,6 +349,20 @@ public class GameView extends SurfaceView implements Runnable {
                 count = 0;
             }
             count++;
+        }
+
+    }
+
+    public void newBulletTwo() {
+        if (mouse.isFly) {
+            //bulletListtwo.clear();
+            if (bulletListtwo.size() < 2) {
+                BulletDown bullet = new BulletDown(getResources());
+
+                bulletListtwo.add(bullet);
+            }
+
+
         }
 
     }

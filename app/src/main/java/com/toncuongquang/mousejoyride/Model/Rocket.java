@@ -12,7 +12,7 @@ import com.toncuongquang.mousejoyride.R;
 
 public class Rocket {
     public Bitmap rocket1,rocket2,rocket3,rocket4,boom;
-    public int speed=30;
+    public int speed=25;
     public int x,y,width,height;
     int count = 0;
     public boolean isBoom;
@@ -52,6 +52,6 @@ public class Rocket {
         return rocket4;
     }
     public Rect getCollider(){
-        return new Rect(x,y,x+width,y+height);
+        return new Rect(x+30,y+70,x+width-30,y+height-70);
     }
 }

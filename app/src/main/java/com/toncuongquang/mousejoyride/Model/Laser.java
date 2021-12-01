@@ -22,11 +22,11 @@ public class Laser {
     public int rad;
     public Laser(Resources res) {
         random = new Random();
-        rad = random.nextInt(40);
+        rad = random.nextInt((40-20)+1)+20;//1
         laser1 = BitmapFactory.decodeResource(res, R.drawable.laser_on);
         laser2 = BitmapFactory.decodeResource(res, R.drawable.laser_off);
-        width = 50;
-        height = 300;
+        width = 100;
+        height = 400;
         width = (int) (width * screenRatioX);
         height = (int) (height * screenRatioY);
         laser1 = Bitmap.createScaledBitmap(laser1, width, height, false);
@@ -54,6 +54,6 @@ public class Laser {
     }
 
     public Rect getCollider() {
-        return new Rect(x, y, x + width, y + height);
+        return new Rect( x+30   , y +30, x + width-30, y + height-30);
     }
 }
